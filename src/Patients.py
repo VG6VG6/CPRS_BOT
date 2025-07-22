@@ -1,4 +1,5 @@
 import DB
+from DB import log
 
 class PATIENTS(DB.DATA_BASE):
 
@@ -24,3 +25,5 @@ class PATIENTS(DB.DATA_BASE):
         "Therapy_status": "TEXT NOT NULL"
         }
         super().__init__("PATIENTS", Patients_DB_Fields)
+        # Default dictionary with all fields of Patient data. It will be filled in DB class __init__ method
+        self.DefaultFields = super().GetDefaultFields()
