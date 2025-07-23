@@ -64,8 +64,8 @@ class DATA_BASE:
         Keys = list(fields.keys())
         for line in Data:
             NiceData.append(fields)
-            for i in range(len(line)):
-                NiceData[-1][Keys[i]] = line[i]
+            for i in range(len(line) - 1):
+                NiceData[-1][Keys[i]] = line[i+1]
         return NiceData
 
     def ShowDataBase(self, Condition : str = ""):
@@ -82,7 +82,7 @@ class DATA_BASE:
             cursor = connection.cursor()
 
             fields = ", ".join(list(Fields_Data.keys()))
-            val = ", ".join(list(Fields_Data.values()))
+            val = "'" + "', '".join(list(Fields_Data.values())) + "'"
 
             cursor.execute(f"""INSERT INTO {self.DB_Name} ({fields}) VALUES ({val})""")
 

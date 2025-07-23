@@ -45,12 +45,11 @@ class BOT:
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         buttons = []
         for row in keys:
-            buttons_row = []
-            for elem in row:
-                button = types.KeyboardButton(text=elem)
-                buttons_row.append(button)
-            buttons.append(buttons_row)
-        keyboard.add(buttons)
+            # buttons_row = []
+            # for elem in row:
+            #     button = types.KeyboardButton(text=elem)
+            #     buttons_row.append(button)
+            keyboard.row(*row)
         return keyboard
 
     def NextStepHendler(self, message: types.Message, func, *args, **kwargs):
@@ -66,13 +65,15 @@ class BOT:
             except Exception as e:
                 log(f"Polling ERROR: {e}")
 
-    def CheckTgId(self, tg_id, role: str = "Any") -> bool:
+    def CheckTgId(self, tg_id: str, role: str = "Any") -> bool:
         AllUsers = self.Users.GetDataBase()
         if role == "Any":
             return tg_id in [user["tgId"] for user in AllUsers]
         else:
             map = {user["tgId"]: user["role"] for user in AllUsers}
-            return map[tg_id] == role
+            if tg_id in map.keys():
+                return map[tg_id] == role
+            return False
 
 
     def _register_handlers(self):
@@ -82,14 +83,44 @@ class BOT:
         def StartMessage(message: types.Message):
             with open("bin/Texts.json", 'r', encoding='utf-8') as f:
                 texts = json.load(f)
-            tgId = message.from_user.id
-            self.SendMessage(message, tgId)
+            tgId = str(message.from_user.id)
             print(tgId)
             if self.CheckTgId(tgId, "admin"):
                 self.SendMessage(message, texts['AdminStart'])
+            elif self.CheckTgId(tgId):
+                self.SendMessage(message, texts['WaitStart'])
             else:
                 self.SendMessage(message, texts['FirstStart'])
+                self.NextStepHendler(message, self.RegisterUser)
 
         @self.bot.message_handler(func=lambda msg: True)
         def handle_all_messages(message: types.Message):
             pass
+
+    @CommandDecorator
+    def RegisterUser(self, message: types.Message, UserRegisterData: dict = {}):
+        if UserRegisterData:
+            if message.text == "Да":
+                fields = self.Users.GetDefaultFields()
+                fields["Surname"], fields["Name"], fields["Patronymic"] = (
+                    UserRegisterData["Surname"], UserRegisterData["Name"], UserRegisterData["Patronymic"])
+                fields["tgId"] = str(message.from_user.id)
+                fields["role"] = "New user"
+                self.Users.Insert(fields)
+            elif message.text == "Нет":
+                self.NextStepHendler(message, self.RegisterUser)
+        else:
+            if message.text.count(' ') != 2:
+                self.SendMessage(message, "Некорректный формат ввода. Введите ФИО.")
+                self.NextStepHendler(message, self.RegisterUser)
+            else:
+                UserRegisterData["Surname"], UserRegisterData["Name"], UserRegisterData["Patronymic"] = message.text.split(' ')
+                self.SendMessage(message, f'Фамилия: {UserRegisterData["Surname"]}\n'
+                                               f'Имя: {UserRegisterData["Name"]}\n'
+                                               f'Отчество: {UserRegisterData["Patronymic"]}\n'
+                                          f"Верно?", self.GetCustomKeyboard([["Да", "Нет"]]))
+                self.NextStepHendler(message, self.RegisterUser)
+
+
+
+

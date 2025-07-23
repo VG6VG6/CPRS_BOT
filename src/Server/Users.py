@@ -9,7 +9,7 @@ class USERS(DB.DATA_BASE):
         "Name": "TEXT NOT NULL",
         "Surname": "TEXT NOT NULL",
         "Patronymic": "TEXT NOT NULL",
-        "tgId": "INT NOT NULL",
+        "tgId": "TEXT NOT NULL",
         "role": "TEXT NOT NULL"
         }
         super().__init__("USERS", User_DB_Fields)
