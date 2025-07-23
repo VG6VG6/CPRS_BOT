@@ -60,9 +60,9 @@ class DATA_BASE:
             cursor.execute(f"SELECT * FROM {self.DB_Name}")
         Data = cursor.fetchall()
         NiceData = []
-        fields = self.GetDefaultFields()
-        Keys = list(fields.keys())
+        Keys = list(self.DefaultFields.keys())
         for line in Data:
+            fields = dict(self.GetDefaultFields())
             NiceData.append(fields)
             for i in range(len(line) - 1):
                 NiceData[-1][Keys[i]] = line[i+1]
@@ -91,4 +91,21 @@ class DATA_BASE:
             return True
         except sqlite3.Error as e:
             log(f"Ошибка при выполнении функции Insert({self.DB_Name}): {e}")
+            return False
+
+    @Safty_DB_Decorator
+    def Update(self, Fields_Data: dict, Condition: str) -> bool:
+        if not Fields_Data:
+            print("No fields to update.")
+            return False
+        try:
+            connection = sqlite3.connect(self.DB_Path)
+            cursor = connection.cursor()
+            set_clause = ', '.join([f"{k} = '{v}'" for k, v in Fields_Data.items()])
+            cursor.execute(f"UPDATE {self.DB_Name} SET {set_clause} WHERE {Condition}")
+            connection.commit()
+            connection.close()
+            return True
+        except sqlite3.Error as e:
+            log(f"Ошибка при выполнении функции Update({self.DB_Name}): {e}")
             return False
