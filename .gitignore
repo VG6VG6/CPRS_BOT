@@ -1,4 +1,6 @@
 /bin
 /.idea
 /src/__pycache__
+/src/Client/__pycache__
+/src/Server/__pycache__
 /__pycache__

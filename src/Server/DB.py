@@ -1,5 +1,5 @@
 import sqlite3
-from tools import log
+from src.tools import log
 
 def Safty_DB_Decorator(func):
     def wrapper(*args, **kwargs):
@@ -18,7 +18,7 @@ class DATA_BASE:
         self.DB_Name = DB_Name
         self.DB_Field = DB_Field
         self.DB_Path = "bin/"+DB_Name+".db"
-        self.DefaultFields = {}
+        self.DefaultFields: dict = {}
         connection = sqlite3.connect(self.DB_Path)
         cursor = connection.cursor()
 
@@ -51,24 +51,40 @@ class DATA_BASE:
         return self.DefaultFields
 
     @Safty_DB_Decorator
-    def ShowDataBase(self, Condition : str = ""):
+    def GetDataBase(self, Condition: str = "") -> list:
         connection = sqlite3.connect(self.DB_Path)
         cursor = connection.cursor()
         if Condition:
             cursor.execute(f"SELECT * FROM {self.DB_Name} WHERE {Condition}")
         else:
             cursor.execute(f"SELECT * FROM {self.DB_Name}")
+        Data = cursor.fetchall()
+        NiceData = []
+        fields = self.GetDefaultFields()
+        Keys = list(fields.keys())
+        for line in Data:
+            NiceData.append(fields)
+            for i in range(len(line)):
+                NiceData[-1][Keys[i]] = line[i]
+        return NiceData
 
-        for line in cursor.fetchall():
+    def ShowDataBase(self, Condition : str = ""):
+        for line in self.GetDataBase():
             log(line)
-        connection.close()
 
-    def Insert(self, Fields_Data) -> bool:
+    @Safty_DB_Decorator
+    def Insert(self, Fields_Data: dict) -> bool:
+        if self.GetDefaultFields().keys() != Fields_Data.keys():
+            print("Incorrect fields data. Fields keys don`t match. ")
+            return False
         try:
             connection = sqlite3.connect(self.DB_Path)
             cursor = connection.cursor()
 
-            cursor.execute(f"""INSERT INTO {self.DB_Name} () VALUES ()""")
+            fields = ", ".join(list(Fields_Data.keys()))
+            val = ", ".join(list(Fields_Data.values()))
+
+            cursor.execute(f"""INSERT INTO {self.DB_Name} ({fields}) VALUES ({val})""")
 
             connection.commit()
             connection.close()

@@ -1,5 +1,5 @@
-import DB
-from DB import log
+import src.Server.DB as DB
+from src.Server.DB import log
 
 class PATIENTS(DB.DATA_BASE):
 

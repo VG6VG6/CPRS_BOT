@@ -1,5 +1,5 @@
-import DB
-from DB import log
+import src.Server.DB as DB
+from src.Server.DB import log
 
 class USERS(DB.DATA_BASE):
 
@@ -9,7 +9,8 @@ class USERS(DB.DATA_BASE):
         "Name": "TEXT NOT NULL",
         "Surname": "TEXT NOT NULL",
         "Patronymic": "TEXT NOT NULL",
-        "tgId": "INT NOT NULL"
+        "tgId": "INT NOT NULL",
+        "role": "TEXT NOT NULL"
         }
         super().__init__("USERS", User_DB_Fields)
         # Default dictionary with all fields of Users data. It will be filled in DB class __init__ method
