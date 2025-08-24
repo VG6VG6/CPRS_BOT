@@ -17,4 +17,13 @@ class USERS(DB.DATA_BASE):
         self.DefaultFields = super().GetDefaultFields()
 
 
+    def getUser(self, tgId: str) -> dict:
+        return self.GetDataBase(f"tgId = {tgId}")
+
+    def getRole(self, tgId: str):
+        user = self.GetDataBase(f"tgId = {tgId}")
+        if user:
+            return user["role"]
+        return None
+
 

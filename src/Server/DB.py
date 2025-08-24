@@ -63,6 +63,8 @@ class DATA_BASE:
         Keys = list(self.DefaultFields.keys())
         for line in Data:
             fields = dict(self.GetDefaultFields())
+            if len(line) > 0:
+                fields["id"] = line[0]
             NiceData.append(fields)
             for i in range(len(line) - 1):
                 NiceData[-1][Keys[i]] = line[i+1]
@@ -81,8 +83,8 @@ class DATA_BASE:
             connection = sqlite3.connect(self.DB_Path)
             cursor = connection.cursor()
 
-            fields = ", ".join(list(Fields_Data.keys()))
-            val = "'" + "', '".join(list(Fields_Data.values())) + "'"
+            fields = "'" + "', '".join(map(str, Fields_Data.keys())) + "'"
+            val = "'" + "', '".join(map(str, Fields_Data.values())) + "'"
 
             cursor.execute(f"""INSERT INTO {self.DB_Name} ({fields}) VALUES ({val})""")
 

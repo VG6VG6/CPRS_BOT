@@ -10,5 +10,11 @@ class ANALYSES(DB.DATA_BASE):
             "result": "TEXT NOT NULL",
             "date": "TEXT NOT NULL"
         }
+        self.FIELDS = [
+            ("patient_id", "Номер пациента"),
+            ("analysis_type", "Тип анализа"),
+            ("result", "Результат"),
+            ("date", "Дата")
+        ]
         super().__init__("ANALYSES", Analyses_DB_Fields)
         self.DefaultFields = super().GetDefaultFields() 
